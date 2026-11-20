@@ -144,14 +144,14 @@ def run_single():
         st.markdown('**3 faktor yang paling menaikkan prediksi DPD (SHAP, dalam hari)**')
         fac = shap_factors(art, row)
         if fac:
-            st.dataframe(pd.DataFrame(fac)[['label', 'nilai', 'shap_hari']], hide_index=True, width='stretch')
+            st.dataframe(pd.DataFrame(fac)[['label', 'nilai', 'shap_hari']], hide_index=True, use_container_width=True)
         st.caption(f"Cicilan bulanan Rp{f['monthly_installment_estimate_idr']:,.0f} · DTI {f['debt_to_income_ratio']:.2f}× · "
                    f"utilisasi limit {f['credit_limit_utilization_ratio']:.0%}")
     with right:
         st.markdown('**Label kepatuhan aturan OJK**')
         st.dataframe(pd.DataFrame({'Aturan': [FLAG_INFO[c][0] for c in FLAG_COLS],
                                    'Status': ['❌ Tidak sesuai' if f[c] == 1 else '✅ Sesuai' for c in FLAG_COLS],
-                                   'Dasar': [FLAG_INFO[c][1] for c in FLAG_COLS]}), hide_index=True, width='stretch')
+                                   'Dasar': [FLAG_INFO[c][1] for c in FLAG_COLS]}), hide_index=True, use_container_width=True)
 
     # ---------------- AFTER (Model 2)
     st.markdown('---'); st.subheader('After — simulasi restrukturisasi (Model 2)')
@@ -165,7 +165,7 @@ def run_single():
     else:
         st.markdown('**Opsi tenor** (bunga = min(bunga awal, batas OJK); opsi disarankan = pertama dengan DSR ≤ 30% & DPD after ≤ 30)')
         st.dataframe(sim['options'].style.format({'cicilan_bulanan_idr': 'Rp{:,.0f}', 'dsr': '{:.1%}', 'bunga_harian_pct': '{:.2f}%',
-                                                  'pred_dpd_after': '{:.1f}'}), hide_index=True, width='stretch')
+                                                  'pred_dpd_after': '{:.1f}'}), hide_index=True, use_container_width=True)
     if sim['best'] is not None:
         b = sim['best']
         st.success(f"**Opsi disarankan:** tenor {int(b['tenor_bulan'])} bulan · cicilan Rp{b['cicilan_bulanan_idr']:,.0f} · "
@@ -183,7 +183,7 @@ def run_single():
         pilihan = st.selectbox('Bandingkan dengan tenor lain (opsional)', ['—'] + sim['options']['tenor_bulan'].tolist())
         if pilihan != '—':
             tab[f'After (tenor {pilihan} bulan)'] = pd.Series(manual_after(row, art['m2'], int(pilihan), thr))
-    st.dataframe(tab.astype(str), width='stretch')
+    st.dataframe(tab.astype(str), use_container_width=True)
     st.caption('⚠️ ' + SIM_DISCLAIMER + ' Kolom "After" adalah prediksi Model 2.')
 
 
@@ -242,6 +242,6 @@ def run_batch():
     c1, c2, c3 = st.columns(3)
     for col, s in zip([c1, c2, c3], ['Tidak Layak', 'Dalam Pengawasan', 'Layak']):
         col.metric(s, f"{(out['status_kelayakan'] == s).sum():,}")
-    st.dataframe(out, hide_index=True, width='stretch')
+    st.dataframe(out, hide_index=True, use_container_width=True)
     st.download_button('Unduh daftar prioritas (CSV)', out.to_csv(index=False).encode('utf-8'), 'finguard_daftar_prioritas.csv', 'text/csv')
     st.caption('⚠️ ' + SIM_DISCLAIMER)
